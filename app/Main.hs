@@ -3,7 +3,8 @@ module Main where
 import Splitter ( CutInfo(CutInfo, albumTitle), parseSheet )
 import System.Process ( callProcess ) 
 import System.Environment ( getArgs )
-import Control.Monad ( forM_ )
+--import Control.Monad ( forM_ )
+import Control.Concurrent.Async (mapConcurrently_)
 import System.Directory ( createDirectory, removeFile )
 import System.FilePath ( (</>) )
 
@@ -22,7 +23,8 @@ main = do
             -- Создаем директорию для разбитых файлов    
             createDirectory parsedDir
             -- Применяем к каждой сруктуре разметки вызов ffmpeg для вырезки из главного файла
-            forM_ parsedFilesWithOrderList runFfmpeg
+            --forM_ parsedFilesWithOrderList runFfmpeg
+            mapConcurrently_ runFfmpeg parsedFilesWithOrderList
             -- Рисуем красоту))
             drawPerfectCompletePic
         _ -> putStrLn "Input .cue file for split and make shure that audio file in the same directory"
@@ -32,6 +34,7 @@ main = do
 runFfmpeg :: (Int, CutInfo) -> IO ()
 runFfmpeg (num, CutInfo name start dur art albT audF) = do
     callProcess "ffmpeg" [
+                            "-loglevel", "quiet",
                             "-i", audF,
                             "-ss", start,
                             "-t", dur,

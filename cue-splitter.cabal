@@ -76,7 +76,14 @@ executable cue-splitter
                     bytestring,
                     text,
                     split,
-                    megaparsec
+                    megaparsec,
+                    async
+
+    ghc-options:
+        -O2
+        -threaded
+        -rtsopts
+        "-with-rtsopts=-N -qg"
 
 
     -- Directories containing source files.
